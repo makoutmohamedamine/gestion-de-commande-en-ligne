@@ -1,0 +1,2171 @@
+<!doctype html>
+<html lang="fr">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Système de Gestion de Commandes</title>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #ffffff;
+    }
+
+    /* Page cachée par défaut */
+    .page {
+      display: none;
+      width: 100%;
+      min-height: 100%;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ============================
+       PAGE DE LOGIN
+    ============================ */
+    .login-container {
+      width: 100%;
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: #1a1a1a;
+      border: 2px solid #D4AF37;
+      border-radius: 12px;
+      padding: 48px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8);
+    }
+
+    .login-title {
+      text-align: center;
+      font-size: 32px;
+      color: #D4AF37;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .login-subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 32px;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      color: #D4AF37;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px;
+      background: #2d2d2d;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #ffffff;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #D4AF37;
+      background: #333;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 14px;
+      background: #2d2d2d;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #ffffff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: #D4AF37;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: #D4AF37;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .login-btn:hover {
+      background: #FFD700;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(212, 175, 55, 0.4);
+    }
+
+    .demo-info {
+      margin-top: 24px;
+      padding: 16px;
+      background: #2d2d2d;
+      border-radius: 6px;
+      border-left: 4px solid #D4AF37;
+    }
+
+    .demo-info-title {
+      color: #D4AF37;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .demo-info p {
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 4px;
+    }
+
+    /* ============================
+       LAYOUT AVEC SIDEBAR
+    ============================ */
+    .dashboard-layout {
+      display: flex;
+      width: 100%;
+      min-height: 100%;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: #000;
+      border-right: 2px solid #D4AF37;
+      padding: 24px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      color: #D4AF37;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-user {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #333;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+    }
+
+    .sidebar-menu li {
+      margin-bottom: 8px;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 12px 16px;
+      color: #ccc;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .sidebar-link:hover,
+    .sidebar-link.active {
+      background: #D4AF37;
+      color: #000;
+    }
+
+    .logout-btn {
+      margin-top: 32px;
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 2px solid #D4AF37;
+      color: #D4AF37;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #D4AF37;
+      color: #000;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    /* ============================
+       DASHBOARD ADMIN
+    ============================ */
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      color: #D4AF37;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      color: #888;
+      font-size: 16px;
+    }
+
+    /* Cartes de statistiques */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: #D4AF37;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.2);
+    }
+
+    .stat-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .stat-label {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      color: #D4AF37;
+      font-weight: 700;
+    }
+
+    /* Graphiques */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .chart-title {
+      color: #D4AF37;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+
+    /* Canvas pour les graphiques */
+    canvas {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Tables */
+    .table-container {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .table-title {
+      color: #D4AF37;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      padding: 10px 20px;
+      background: #D4AF37;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: #FFD700;
+      transform: translateY(-2px);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    .data-table thead {
+      background: #2d2d2d;
+    }
+
+    .data-table th {
+      padding: 14px;
+      text-align: left;
+      color: #D4AF37;
+      font-weight: 600;
+      border-bottom: 2px solid #D4AF37;
+    }
+
+    .data-table td {
+      padding: 14px;
+      border-bottom: 1px solid #333;
+      color: #ccc;
+    }
+
+    .data-table tbody tr {
+      transition: background 0.2s ease;
+    }
+
+    .data-table tbody tr:hover {
+      background: #2d2d2d;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      background: transparent;
+      border: 1px solid #D4AF37;
+      color: #D4AF37;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      margin-right: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-small:hover {
+      background: #D4AF37;
+      color: #000;
+    }
+
+    .btn-danger {
+      border-color: #ff4444;
+      color: #ff4444;
+    }
+
+    .btn-danger:hover {
+      background: #ff4444;
+      color: #fff;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background: #ff9800;
+      color: #000;
+    }
+
+    .status-completed {
+      background: #4caf50;
+      color: #fff;
+    }
+
+    .status-cancelled {
+      background: #f44336;
+      color: #fff;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: #1a1a1a;
+      border: 2px solid #D4AF37;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      color: #D4AF37;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #D4AF37;
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+    }
+
+    .modal-close:hover {
+      color: #FFD700;
+    }
+
+    .modal-body {
+      margin-bottom: 24px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-secondary {
+      padding: 10px 20px;
+      background: transparent;
+      border: 2px solid #666;
+      color: #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: #D4AF37;
+      color: #D4AF37;
+    }
+
+    /* ============================
+       ESPACE CLIENT
+    ============================ */
+    .client-header {
+      background: #000;
+      border-bottom: 2px solid #D4AF37;
+      padding: 20px 32px;
+    }
+
+    .client-header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .client-logo {
+      font-size: 24px;
+      color: #D4AF37;
+      font-weight: 700;
+    }
+
+    .client-nav {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .client-nav-link {
+      color: #ccc;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .client-nav-link:hover {
+      color: #D4AF37;
+    }
+
+    .cart-badge {
+      background: #D4AF37;
+      color: #000;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .cart-badge:hover {
+      background: #FFD700;
+      transform: scale(1.05);
+    }
+
+    .client-main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .product-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .product-card:hover {
+      border-color: #D4AF37;
+      transform: translateY(-8px);
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+    }
+
+    .product-image {
+      height: 200px;
+      background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      border-bottom: 2px solid #D4AF37;
+    }
+
+    .product-content {
+      padding: 20px;
+    }
+
+    .product-name {
+      color: #D4AF37;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .product-category {
+      color: #888;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .product-description {
+      color: #ccc;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .product-price {
+      color: #D4AF37;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    /* Cart Sidebar */
+    .cart-sidebar {
+      position: fixed;
+      right: -400px;
+      top: 0;
+      width: 400px;
+      height: 100%;
+      background: #000;
+      border-left: 2px solid #D4AF37;
+      z-index: 1000;
+      transition: right 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-sidebar.open {
+      right: 0;
+    }
+
+    .cart-sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-sidebar-title {
+      color: #D4AF37;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .cart-close-btn {
+      background: transparent;
+      border: none;
+      color: #D4AF37;
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .cart-sidebar-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .cart-sidebar-footer {
+      padding: 24px;
+      border-top: 2px solid #D4AF37;
+      background: #1a1a1a;
+    }
+
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #D4AF37;
+    }
+
+    .cart-item {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .cart-item-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .cart-item-name {
+      color: #D4AF37;
+      font-weight: 600;
+    }
+
+    .cart-item-remove {
+      background: transparent;
+      border: none;
+      color: #ff4444;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .cart-item-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-item-quantity {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .quantity-btn {
+      background: #D4AF37;
+      color: #000;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .cart-item-price {
+      color: #D4AF37;
+      font-weight: 700;
+    }
+
+    .cart-empty {
+      text-align: center;
+      color: #888;
+      padding: 48px 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 200px;
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #D4AF37;
+      }
+
+      .main-content {
+        padding: 16px;
+      }
+
+      .cart-sidebar {
+        width: 100%;
+        right: -100%;
+      }
+
+      .stats-grid,
+      .products-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><!-- ============================
+       PAGE DE LOGIN
+  ============================ -->
+  <div id="login-page" class="page active">
+   <div class="login-container">
+    <div class="login-box">
+     <h1 class="login-title">🔐 Connexion</h1>
+     <p class="login-subtitle">Système de Gestion de Commandes</p>
+     <form id="login-form" onsubmit="handleLogin(event)">
+      <div class="form-group"><label for="login-email" class="form-label">Email</label> <input type="email" id="login-email" class="form-input" placeholder="Entrez votre email" required>
+      </div>
+      <div class="form-group"><label for="login-password" class="form-label">Mot de passe</label> <input type="password" id="login-password" class="form-input" placeholder="Entrez votre mot de passe" required>
+      </div><button type="submit" class="login-btn">Se connecter</button>
+     </form>
+     <div style="text-align: center; margin-top: 24px;">
+      <p style="color: #888; font-size: 14px;">Pas encore de compte ? <a href="#" onclick="showRegisterPage(); return false;" style="color: #D4AF37; text-decoration: none; font-weight: 600; margin-left: 4px;">S'inscrire</a></p>
+     </div>
+     <div class="demo-info">
+      <div class="demo-info-title">
+       💡 Comptes de démonstration
+      </div>
+      <p><strong>Admin:</strong> admin@system.com / admin123</p>
+      <p><strong>Fournisseur:</strong> fournisseur@system.com / fournisseur123</p>
+      <p><strong>Client:</strong> client@system.com / client123</p>
+     </div>
+    </div>
+   </div>
+  </div><!-- ============================
+       PAGE D'INSCRIPTION
+  ============================ -->
+  <div id="register-page" class="page">
+   <div class="login-container">
+    <div class="login-box">
+     <h1 class="login-title">📝 Inscription</h1>
+     <p class="login-subtitle">Créez votre compte</p>
+     <form id="register-form" onsubmit="handleRegister(event)">
+      <div class="form-group"><label for="register-name" class="form-label">Nom complet</label> <input type="text" id="register-name" class="form-input" placeholder="Entrez votre nom" required>
+      </div>
+      <div class="form-group"><label for="register-email" class="form-label">Email</label> <input type="email" id="register-email" class="form-input" placeholder="Entrez votre email" required>
+      </div>
+      <div class="form-group"><label for="register-password" class="form-label">Mot de passe</label> <input type="password" id="register-password" class="form-input" placeholder="Entrez votre mot de passe" required minlength="6">
+      </div>
+      <div class="form-group"><label for="register-role" class="form-label">Rôle</label> <select id="register-role" class="form-select" required>
+        <option value="client">Client</option>
+        <option value="fournisseur">Fournisseur</option>
+        <option value="admin">Admin</option>
+       </select>
+      </div>
+      <div class="form-group"><label for="register-confirm" class="form-label">Confirmer le mot de passe</label> <input type="password" id="register-confirm" class="form-input" placeholder="Confirmez votre mot de passe" required>
+      </div><button type="submit" class="login-btn">Créer mon compte</button>
+     </form>
+     <div style="text-align: center; margin-top: 24px;">
+      <p style="color: #888; font-size: 14px;">Déjà inscrit ? <a href="#" onclick="showLoginPage(); return false;" style="color: #D4AF37; text-decoration: none; font-weight: 600; margin-left: 4px;">Se connecter</a></p>
+     </div>
+    </div>
+   </div>
+  </div><!-- ============================
+       DASHBOARD ADMIN
+  ============================ -->
+  <div id="admin-page" class="page">
+   <div class="dashboard-layout">
+    <aside class="sidebar">
+     <div class="sidebar-logo">
+      ⚡ Admin Panel
+     </div>
+     <div class="sidebar-user" id="admin-user">
+      Chef de Projet
+     </div>
+     <ul class="sidebar-menu">
+      <li><a class="sidebar-link active" onclick="showAdminSection('dashboard')">📊 Dashboard</a></li>
+      <li><a class="sidebar-link" onclick="showAdminSection('articles')">📦 Gestion Articles</a></li>
+      <li><a class="sidebar-link" onclick="showAdminSection('commandes')">🛒 Gestion Commandes</a></li>
+     </ul><button class="logout-btn" onclick="logout()">🚪 Déconnexion</button>
+    </aside>
+    <main class="main-content"><!-- Section Dashboard -->
+     <div id="admin-dashboard" class="admin-section">
+      <div class="page-header">
+       <h1 class="page-title">📊 Dashboard</h1>
+       <p class="page-subtitle">Vue d'ensemble de votre activité</p>
+      </div>
+      <div class="stats-grid">
+       <div class="stat-card">
+        <div class="stat-icon">
+         📦
+        </div>
+        <div class="stat-label">
+         Total Articles
+        </div>
+        <div class="stat-value" id="stat-articles">
+         0
+        </div>
+       </div>
+       <div class="stat-card">
+        <div class="stat-icon">
+         🛒
+        </div>
+        <div class="stat-label">
+         Total Commandes
+        </div>
+        <div class="stat-value" id="stat-commandes">
+         0
+        </div>
+       </div>
+       <div class="stat-card">
+        <div class="stat-icon">
+         🏭
+        </div>
+        <div class="stat-label">
+         Fournisseurs
+        </div>
+        <div class="stat-value" id="stat-fournisseurs">
+         0
+        </div>
+       </div>
+       <div class="stat-card">
+        <div class="stat-icon">
+         💰
+        </div>
+        <div class="stat-label">
+         Chiffre d'Affaires
+        </div>
+        <div class="stat-value" id="stat-revenue">
+         0 €
+        </div>
+       </div>
+      </div>
+      <div class="charts-grid">
+       <div class="chart-card">
+        <h3 class="chart-title">Commandes par Jour</h3>
+        <div class="chart-container">
+         <canvas id="ordersChart"></canvas>
+        </div>
+       </div>
+       <div class="chart-card">
+        <h3 class="chart-title">Répartition par Catégorie</h3>
+        <div class="chart-container">
+         <canvas id="categoryChart"></canvas>
+        </div>
+       </div>
+      </div>
+     </div><!-- Section Gestion Articles -->
+     <div id="admin-articles" class="admin-section" style="display: none;">
+      <div class="page-header">
+       <h1 class="page-title">📦 Gestion des Articles</h1>
+       <p class="page-subtitle">Ajoutez, modifiez ou supprimez des articles</p>
+      </div>
+      <div class="table-container">
+       <div class="table-header">
+        <h3 class="table-title">Liste des Articles</h3><button class="btn-primary" onclick="openArticleModal()">➕ Ajouter un Article</button>
+       </div>
+       <table class="data-table">
+        <thead>
+         <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Catégorie</th>
+          <th>Prix</th>
+          <th>Stock</th>
+          <th>Actions</th>
+         </tr>
+        </thead>
+        <tbody id="articles-table-body">
+        </tbody>
+       </table>
+      </div>
+     </div><!-- Section Gestion Commandes -->
+     <div id="admin-commandes" class="admin-section" style="display: none;">
+      <div class="page-header">
+       <h1 class="page-title">🛒 Gestion des Commandes</h1>
+       <p class="page-subtitle">Suivez toutes les commandes passées</p>
+      </div>
+      <div class="table-container">
+       <div class="table-header">
+        <h3 class="table-title">Liste des Commandes</h3>
+       </div>
+       <table class="data-table">
+        <thead>
+         <tr>
+          <th>N° Commande</th>
+          <th>Date</th>
+          <th>Client</th>
+          <th>Articles</th>
+          <th>Total</th>
+          <th>Statut</th>
+          <th>Actions</th>
+         </tr>
+        </thead>
+        <tbody id="commandes-table-body">
+        </tbody>
+       </table>
+      </div>
+     </div>
+    </main>
+   </div>
+  </div><!-- ============================
+       ESPACE FOURNISSEUR
+  ============================ -->
+  <div id="fournisseur-page" class="page">
+   <div class="dashboard-layout">
+    <aside class="sidebar">
+     <div class="sidebar-logo">
+      🏭 Fournisseur
+     </div>
+     <div class="sidebar-user" id="fournisseur-user">
+      Fournisseur
+     </div>
+     <ul class="sidebar-menu">
+      <li><a class="sidebar-link active" onclick="showFournisseurSection('articles')">📦 Mes Articles</a></li>
+      <li><a class="sidebar-link" onclick="showFournisseurSection('commandes')">🛒 Mes Commandes</a></li>
+     </ul><button class="logout-btn" onclick="logout()">🚪 Déconnexion</button>
+    </aside>
+    <main class="main-content"><!-- Section Articles Fournisseur -->
+     <div id="fournisseur-articles" class="fournisseur-section">
+      <div class="page-header">
+       <h1 class="page-title">📦 Mes Articles à Fournir</h1>
+       <p class="page-subtitle">Gérez la disponibilité de vos articles</p>
+      </div>
+      <div class="table-container">
+       <table class="data-table">
+        <thead>
+         <tr>
+          <th>Article</th>
+          <th>Catégorie</th>
+          <th>Prix</th>
+          <th>Stock Actuel</th>
+          <th>Actions</th>
+         </tr>
+        </thead>
+        <tbody id="fournisseur-articles-body">
+        </tbody>
+       </table>
+      </div>
+     </div><!-- Section Commandes Fournisseur -->
+     <div id="fournisseur-commandes" class="fournisseur-section" style="display: none;">
+      <div class="page-header">
+       <h1 class="page-title">🛒 Commandes à Préparer</h1>
+       <p class="page-subtitle">Commandes contenant vos articles</p>
+      </div>
+      <div class="table-container">
+       <table class="data-table">
+        <thead>
+         <tr>
+          <th>N° Commande</th>
+          <th>Date</th>
+          <th>Articles Concernés</th>
+          <th>Quantité</th>
+          <th>Statut</th>
+         </tr>
+        </thead>
+        <tbody id="fournisseur-commandes-body">
+        </tbody>
+       </table>
+      </div>
+     </div>
+    </main>
+   </div>
+  </div><!-- ============================
+       ESPACE CLIENT
+  ============================ -->
+  <div id="client-page" class="page">
+   <header class="client-header">
+    <div class="client-header-content">
+     <div class="client-logo">
+      ✨ Boutique Premium
+     </div>
+     <nav class="client-nav"><a class="client-nav-link" onclick="showClientSection('catalogue')">Catalogue</a> <span class="cart-badge" onclick="toggleCart()"> 🛒 Panier (<span id="cart-count">0</span>) </span> <a class="client-nav-link" onclick="logout()">Déconnexion</a>
+     </nav>
+    </div>
+   </header>
+   <main class="client-main">
+    <div class="page-header">
+     <h1 class="page-title">🛍️ Catalogue de Produits</h1>
+     <p class="page-subtitle">Découvrez notre sélection premium</p>
+    </div>
+    <div class="products-grid" id="products-grid"></div>
+   </main><!-- Cart Sidebar -->
+   <div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-sidebar-header">
+     <h3 class="cart-sidebar-title">🛒 Mon Panier</h3><button class="cart-close-btn" onclick="toggleCart()">×</button>
+    </div>
+    <div class="cart-sidebar-body" id="cart-sidebar-body">
+     <div class="cart-empty">
+      Votre panier est vide
+     </div>
+    </div>
+    <div class="cart-sidebar-footer" id="cart-sidebar-footer" style="display: none;">
+     <div class="cart-total"><span>Total:</span> <span id="cart-total">0.00 €</span>
+     </div><button class="btn-primary" style="width: 100%;" onclick="openDeliveryModal()">Continuer vers la livraison</button>
+    </div>
+   </div>
+  </div><!-- ============================
+       MODAL ARTICLE
+  ============================ -->
+  <div class="modal-overlay" id="article-modal">
+   <div class="modal">
+    <div class="modal-header">
+     <h2 class="modal-title" id="article-modal-title">Ajouter un Article</h2><button class="modal-close" onclick="closeArticleModal()">×</button>
+    </div>
+    <form id="article-form" onsubmit="saveArticle(event)">
+     <div class="modal-body"><input type="hidden" id="article-id">
+      <div class="form-group"><label for="article-nom" class="form-label">Nom de l'article</label> <input type="text" id="article-nom" class="form-input" required>
+      </div>
+      <div class="form-group"><label for="article-categorie" class="form-label">Catégorie</label> <select id="article-categorie" class="form-select" required> <option value="Électronique">Électronique</option> <option value="Mode">Mode</option> <option value="Maison">Maison &amp; Décoration</option> </select>
+      </div>
+      <div class="form-group"><label for="article-prix" class="form-label">Prix (€)</label> <input type="number" id="article-prix" class="form-input" step="0.01" required>
+      </div>
+      <div class="form-group"><label for="article-stock" class="form-label">Stock</label> <input type="number" id="article-stock" class="form-input" required>
+      </div>
+      <div class="form-group"><label for="article-description" class="form-label">Description</label> <input type="text" id="article-description" class="form-input" required>
+      </div>
+      <div class="form-group"><label for="article-icone" class="form-label">Icône (emoji)</label> <input type="text" id="article-icone" class="form-input" placeholder="Ex: 📱" required>
+      </div>
+     </div>
+     <div class="modal-footer"><button type="button" class="btn-secondary" onclick="closeArticleModal()">Annuler</button> <button type="submit" class="btn-primary">Enregistrer</button>
+     </div>
+    </form>
+   </div>
+  </div><!-- ============================
+       MODAL STOCK
+  ============================ -->
+  <div class="modal-overlay" id="stock-modal">
+   <div class="modal">
+    <div class="modal-header">
+     <h2 class="modal-title">Mettre à Jour le Stock</h2><button class="modal-close" onclick="closeStockModal()">×</button>
+    </div>
+    <form id="stock-form" onsubmit="updateStock(event)">
+     <div class="modal-body"><input type="hidden" id="stock-article-id">
+      <div class="form-group"><label class="form-label">Article</label> <input type="text" id="stock-article-nom" class="form-input" readonly>
+      </div>
+      <div class="form-group"><label for="stock-quantite" class="form-label">Nouveau Stock</label> <input type="number" id="stock-quantite" class="form-input" required>
+      </div>
+     </div>
+     <div class="modal-footer"><button type="button" class="btn-secondary" onclick="closeStockModal()">Annuler</button> <button type="submit" class="btn-primary">Mettre à Jour</button>
+     </div>
+    </form>
+   </div>
+  </div>
+  <!-- ============================
+       MODAL INFORMATIONS LIVRAISON
+      ============================ -->
+  <div class="modal-overlay" id="delivery-modal">
+   <div class="modal">
+    <div class="modal-header">
+     <h2 class="modal-title">Informations de livraison</h2><button class="modal-close" onclick="closeDeliveryModal()">×</button>
+    </div>
+    <form id="delivery-form" onsubmit="submitDeliveryForm(event)">
+     <div class="modal-body">
+      <div class="form-group"><label class="form-label" for="delivery-name">Nom complet</label> <input type="text" id="delivery-name" class="form-input" placeholder="Nom et prénom" required>
+      </div>
+      <div class="form-group"><label class="form-label" for="delivery-street">Adresse</label> <input type="text" id="delivery-street" class="form-input" placeholder="Rue et numéro" required>
+      </div>
+      <div class="form-group"><label class="form-label" for="delivery-city">Ville</label> <input type="text" id="delivery-city" class="form-input" placeholder="Ville" required>
+      </div>
+      <div class="form-group"><label class="form-label" for="delivery-postal">Code postal</label> <input type="text" id="delivery-postal" class="form-input" placeholder="Code postal" required>
+      </div>
+      <div class="form-group"><label class="form-label" for="delivery-phone">Téléphone</label> <input type="text" id="delivery-phone" class="form-input" placeholder="Téléphone du client" required>
+      </div>
+     </div>
+     <div class="modal-footer"><button type="button" class="btn-secondary" onclick="closeDeliveryModal()">Annuler</button> <button type="submit" class="btn-primary">Confirmer la commande</button>
+     </div>
+    </form>
+       <script>
+           // ============================
+           // MODÈLES DE DONNÉES
+           // ============================
+
+           /**
+            * Classe Article - Représente un article de base
+            */
+           class Article {
+             constructor(id, nom, prix, categorie, description, icone, stock = 50) {
+               this.id = id;
+               this.nom = nom;
+               this.prix = prix;
+               this.categorie = categorie;
+               this.description = description;
+               this.icone = icone;
+               this.stock = stock;
+             }
+           }
+
+           /**
+            * Classe ArticleElectronique - Spécialisation pour l'électronique
+            */
+           class ArticleElectronique extends Article {
+             constructor(id, nom, prix, description, icone, stock, garantie) {
+               super(id, nom, prix, 'Électronique', description, icone, stock);
+               this.garantie = garantie;
+             }
+           }
+
+           /**
+            * Classe ArticleMode - Spécialisation pour la mode
+            */
+           class ArticleMode extends Article {
+             constructor(id, nom, prix, description, icone, stock, taille) {
+               super(id, nom, prix, 'Mode', description, icone, stock);
+               this.taille = taille;
+             }
+           }
+
+           /**
+            * Classe ArticleMaison - Spécialisation pour la maison
+            */
+           class ArticleMaison extends Article {
+             constructor(id, nom, prix, description, icone, stock, materiau) {
+               super(id, nom, prix, 'Maison & Décoration', description, icone, stock);
+               this.materiau = materiau;
+             }
+           }
+
+           /**
+            * Classe ItemPanier - Représente un article dans le panier
+            */
+           class ItemPanier {
+             constructor(article, quantite = 1) {
+               this.article = article;
+               this.quantite = quantite;
+             }
+
+             getSousTotal() {
+               return this.article.prix * this.quantite;
+             }
+           }
+
+           /**
+            * Classe Panier - Gère le panier d'achat
+            */
+           class Panier {
+             constructor() {
+               this.items = [];
+             }
+
+             ajouterArticle(article) {
+               const itemExistant = this.items.find(item => item.article.id === article.id);
+
+               if (itemExistant) {
+                 itemExistant.quantite++;
+               } else {
+                 this.items.push(new ItemPanier(article));
+               }
+
+               this.actualiser();
+             }
+
+             retirerArticle(articleId) {
+               this.items = this.items.filter(item => item.article.id !== articleId);
+               this.actualiser();
+             }
+
+             modifierQuantite(articleId, nouvelleQuantite) {
+               const item = this.items.find(item => item.article.id === articleId);
+
+               if (item) {
+                 if (nouvelleQuantite <= 0) {
+                   this.retirerArticle(articleId);
+                 } else {
+                   item.quantite = nouvelleQuantite;
+                   this.actualiser();
+                 }
+               }
+             }
+
+             vider() {
+               this.items = [];
+               this.actualiser();
+             }
+
+             getTotal() {
+               return this.items.reduce((total, item) => total + item.getSousTotal(), 0);
+             }
+
+             getNombreArticles() {
+               return this.items.reduce((total, item) => total + item.quantite, 0);
+             }
+
+             actualiser() {
+               renderCart();
+             }
+           }
+
+           /**
+            * Classe Commande - Représente une commande
+            */
+           class Commande {
+             constructor(id, items, total, client = 'Client', date = new Date(), deliveryInfo = null) {
+               this.id = id;
+               this.items = items;
+               this.total = total;
+               this.client = client;
+               this.date = date;
+               this.statut = 'En attente';
+               this.deliveryInfo = deliveryInfo; // infos de livraison (nom, adresse, téléphone, ...)
+             }
+           }
+
+           // ============================
+           // DONNÉES GLOBALES
+           // ============================
+
+           let currentUser = null;
+           let articles = [];
+           let commandes = [];
+           let panier = new Panier();
+           let nextArticleId = 1;
+           let nextCommandeId = 1;
+
+           // Comptes de démonstration
+           const users = {
+             admin: { email: 'admin@system.com', password: 'admin123', type: 'admin', name: 'Chef de Projet' },
+             fournisseur: { email: 'fournisseur@system.com', password: 'fournisseur123', type: 'fournisseur', name: 'Fournisseur ABC' },
+             client: { email: 'client@system.com', password: 'client123', type: 'client', name: 'Client Demo' }
+           };
+
+           // ============================
+           // INITIALISATION
+           // ============================
+
+           function initData() {
+             // Créer des articles initiaux avec différents types
+             articles = [
+               new ArticleElectronique(nextArticleId++, 'Smartphone Premium', 899.99, 'Écran OLED 6.5", 256 Go', '📱', 45, '2 ans'),
+               new ArticleElectronique(nextArticleId++, 'Ordinateur Portable', 1299.99, 'Intel i7, 16 Go RAM, SSD 512 Go', '💻', 30, '2 ans'),
+               new ArticleElectronique(nextArticleId++, 'Écouteurs Sans Fil', 249.99, 'Réduction de bruit active', '🎧', 60, '1 an'),
+               new ArticleElectronique(nextArticleId++, 'Tablette Tactile', 599.99, '10.5" Retina, 128 Go', '📲', 40, '2 ans'),
+
+               new ArticleMode(nextCommandeId++, 'Veste en Cuir', 399.99, 'Cuir véritable, coupe moderne', '🧥', 25, 'M'),
+               new ArticleMode(nextArticleId++, 'Sneakers Premium', 179.99, 'Design exclusif, confort optimal', '👟', 50, '42'),
+               new ArticleMode(nextArticleId++, 'Montre Élégante', 549.99, 'Automatique, bracelet acier', '⌚', 35, 'Unique'),
+               new ArticleMode(nextArticleId++, 'Sac à Main', 289.99, 'Cuir italien, plusieurs compartiments', '👜', 40, 'Unique'),
+
+               new ArticleMaison(nextArticleId++, 'Lampe Design', 159.99, 'LED, contrôle tactile', '💡', 55, 'Métal'),
+               new ArticleMaison(nextArticleId++, 'Fauteuil Confort', 699.99, 'Tissu premium, ergonomique', '🛋️', 20, 'Tissu/Bois'),
+               new ArticleMaison(nextArticleId++, 'Tapis Luxe', 349.99, '200x300 cm, fait main', '🎨', 15, 'Laine'),
+               new ArticleMaison(nextArticleId++, 'Miroir Mural', 199.99, 'Cadre doré, 80x120 cm', '🪞', 30, 'Verre/Métal')
+             ];
+
+             // Créer quelques commandes de démonstration
+             commandes = [
+               new Commande(nextCommandeId++, [
+                 new ItemPanier(articles[0], 1),
+                 new ItemPanier(articles[2], 2)
+               ], 1399.97, 'Jean Dupont', new Date('2024-01-15')),
+               new Commande(nextCommandeId++, [
+                 new ItemPanier(articles[4], 1)
+               ], 399.99, 'Marie Martin', new Date('2024-01-16')),
+               new Commande(nextCommandeId++, [
+                 new ItemPanier(articles[1], 1),
+                 new ItemPanier(articles[9], 1)
+               ], 1999.98, 'Pierre Dubois', new Date('2024-01-17'))
+             ];
+
+             commandes[1].statut = 'Complétée';
+             commandes[2].statut = 'Annulée';
+           }
+
+           // ============================
+           // GESTION DE L'AUTHENTIFICATION
+           // ============================
+
+           function handleLogin(event) {
+             event.preventDefault();
+
+             const email = document.getElementById('login-email').value;
+             const password = document.getElementById('login-password').value;
+
+             fetch('http://localhost:8081/api/auth/login', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({
+                 email: email,
+                 passwordHash: password
+               })
+             })
+             .then(async response => {
+               if (!response.ok) {
+                 throw new Error('Identifiants invalides');
+               }
+               return response.json();
+             })
+             .then(data => {
+               const role = data.role;
+               currentUser = {
+                 email: data.email,
+                 role: role,
+                 name: data.email
+               };
+
+               if (role === 'admin') {
+                 showPage('admin-page');
+                 renderAdminDashboard();
+               } else if (role === 'partner_admin' || role === 'fournisseur') {
+                 showPage('fournisseur-page');
+                 renderFournisseurArticles();
+               } else {
+                 // client ou autre
+                 showPage('client-page');
+                 renderProducts();
+               }
+             })
+             .catch(err => {
+               console.error('Erreur login:', err);
+               let errorMsg = 'Email ou mot de passe incorrect';
+               if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+                 errorMsg = 'Impossible de contacter le serveur. Vérifiez que le backend est lancé sur http://localhost:8081';
+               }
+               showInlineMessage(errorMsg);
+             });
+           }
+
+           function handleRegister(event) {
+             event.preventDefault();
+
+             const name = document.getElementById('register-name').value;
+             const email = document.getElementById('register-email').value;
+             const password = document.getElementById('register-password').value;
+             const confirm = document.getElementById('register-confirm').value;
+             const role = document.getElementById('register-role').value;
+
+             // Vérifier si les mots de passe correspondent
+             if (password !== confirm) {
+               showInlineMessage('Les mots de passe ne correspondent pas', 'register-form');
+               return;
+             }
+
+             // Découper le nom en prénom / nom
+             const parts = name.trim().split(' ');
+             const firstName = parts[0] || '';
+             const lastName = parts.slice(1).join(' ') || firstName;
+
+             // Mapper le rôle front -> backend
+             let backendRole = 'client';
+             if (role === 'admin') backendRole = 'admin';
+             else if (role === 'fournisseur') backendRole = 'partner_admin';
+
+             fetch('http://localhost:8081/api/auth/register', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({
+                 firstName: firstName,
+                 lastName: lastName,
+                 email: email,
+                 passwordHash: password,
+                 role: backendRole,
+                 phoneNumber: ''
+               })
+             })
+             .then(async response => {
+               const data = await response.json().catch(() => ({}));
+               if (!response.ok) {
+                 throw new Error(data.message || 'Erreur lors de l\'inscription');
+               }
+               showSuccessMessage('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
+               setTimeout(() => {
+                 showLoginPage();
+                 document.getElementById('login-email').value = email;
+               }, 2000);
+             })
+             .catch(err => {
+               console.error('Erreur inscription:', err);
+               let errorMsg = 'Erreur lors de l\'inscription';
+               if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                 errorMsg = 'Impossible de contacter le serveur. Vérifiez que le backend est lancé sur http://localhost:8081';
+               } else if (err.message) {
+                 errorMsg = err.message;
+               }
+               showInlineMessage(errorMsg, 'register-form');
+             });
+           }
+
+           function showRegisterPage() {
+             showPage('register-page');
+             document.getElementById('register-form').reset();
+           }
+
+           function showLoginPage() {
+             showPage('login-page');
+             document.getElementById('login-form').reset();
+           }
+
+           function logout() {
+             currentUser = null;
+             panier.vider();
+             showPage('login-page');
+             document.getElementById('login-form').reset();
+           }
+
+           function showPage(pageId) {
+             document.querySelectorAll('.page').forEach(page => {
+               page.classList.remove('active');
+             });
+             document.getElementById(pageId).classList.add('active');
+           }
+
+           function showInlineMessage(message, formId = 'login-form') {
+             const form = document.getElementById(formId);
+
+             // Supprimer le message existant s'il y en a un
+             const existingMessage = form.querySelector('.inline-message');
+             if (existingMessage) {
+               existingMessage.remove();
+             }
+
+             // Créer et afficher le nouveau message
+             const messageDiv = document.createElement('div');
+             messageDiv.className = 'inline-message';
+             messageDiv.style.cssText = 'background: #ff4444; color: white; padding: 12px; border-radius: 6px; margin-top: 16px; text-align: center;';
+             messageDiv.textContent = message;
+             form.appendChild(messageDiv);
+
+             // Supprimer après 3 secondes
+             setTimeout(() => messageDiv.remove(), 3000);
+           }
+
+           function showSuccessMessage(message) {
+             const form = document.getElementById('register-form');
+
+             // Supprimer le message existant s'il y en a un
+             const existingMessage = form.querySelector('.success-message');
+             if (existingMessage) {
+               existingMessage.remove();
+             }
+
+             // Créer et afficher le nouveau message
+             const messageDiv = document.createElement('div');
+             messageDiv.className = 'success-message';
+             messageDiv.style.cssText = 'background: #4caf50; color: white; padding: 12px; border-radius: 6px; margin-top: 16px; text-align: center;';
+             messageDiv.textContent = message;
+             form.appendChild(messageDiv);
+
+             // Supprimer après 3 secondes
+             setTimeout(() => messageDiv.remove(), 3000);
+           }
+
+           // ============================
+           // DASHBOARD ADMIN
+           // ============================
+
+           function showAdminSection(section) {
+             document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+             document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+
+             if (section === 'dashboard') {
+               document.getElementById('admin-dashboard').style.display = 'block';
+               renderAdminDashboard();
+             } else if (section === 'articles') {
+               document.getElementById('admin-articles').style.display = 'block';
+               renderArticlesTable();
+             } else if (section === 'commandes') {
+               document.getElementById('admin-commandes').style.display = 'block';
+               renderCommandesTable();
+             }
+
+             event.target.classList.add('active');
+           }
+
+           function renderAdminDashboard() {
+             // Mettre à jour les statistiques
+             document.getElementById('stat-articles').textContent = articles.length;
+             document.getElementById('stat-commandes').textContent = commandes.length;
+             document.getElementById('stat-fournisseurs').textContent = '3';
+
+             const revenue = commandes
+               .filter(c => c.statut !== 'Annulée')
+               .reduce((sum, c) => sum + c.total, 0);
+             document.getElementById('stat-revenue').textContent = revenue.toFixed(2) + ' €';
+
+             // Créer les graphiques
+             createOrdersChart();
+             createCategoryChart();
+           }
+
+           function createOrdersChart() {
+             const ctx = document.getElementById('ordersChart');
+             if (!ctx) return;
+
+             // Données simulées pour les commandes par jour
+             const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+             const data = [12, 19, 8, 15, 22, 18, 25];
+
+             // Créer un graphique en barres simple avec Canvas
+             drawBarChart(ctx, days, data, '#D4AF37');
+           }
+
+           function createCategoryChart() {
+             const ctx = document.getElementById('categoryChart');
+             if (!ctx) return;
+
+             // Compter les articles par catégorie
+             const categories = {};
+             articles.forEach(article => {
+               categories[article.categorie] = (categories[article.categorie] || 0) + 1;
+             });
+
+             const labels = Object.keys(categories);
+             const data = Object.values(categories);
+             const colors = ['#D4AF37', '#FFD700', '#B8860B'];
+
+             drawPieChart(ctx, labels, data, colors);
+           }
+
+           function drawBarChart(canvas, labels, data, color) {
+             const ctx = canvas.getContext('2d');
+             const width = canvas.width = canvas.offsetWidth;
+             const height = canvas.height = canvas.offsetHeight;
+
+             ctx.clearRect(0, 0, width, height);
+
+             const maxValue = Math.max(...data);
+             const barWidth = width / (labels.length * 2);
+             const chartHeight = height - 60;
+
+             // Dessiner les barres
+             data.forEach((value, index) => {
+               const barHeight = (value / maxValue) * chartHeight;
+               const x = (index * 2 + 1) * barWidth;
+               const y = height - barHeight - 40;
+
+               // Barre
+               ctx.fillStyle = color;
+               ctx.fillRect(x - barWidth / 2, y, barWidth, barHeight);
+
+               // Label
+               ctx.fillStyle = '#fff';
+               ctx.font = '12px sans-serif';
+               ctx.textAlign = 'center';
+               ctx.fillText(labels[index], x, height - 20);
+
+               // Valeur
+               ctx.fillText(value, x, y - 5);
+             });
+           }
+
+           function drawPieChart(canvas, labels, data, colors) {
+             const ctx = canvas.getContext('2d');
+             const width = canvas.width = canvas.offsetWidth;
+             const height = canvas.height = canvas.offsetHeight;
+
+             ctx.clearRect(0, 0, width, height);
+
+             const centerX = width / 2;
+             const centerY = height / 2;
+             const radius = Math.min(width, height) / 2 - 40;
+
+             const total = data.reduce((sum, val) => sum + val, 0);
+             let currentAngle = -Math.PI / 2;
+
+             data.forEach((value, index) => {
+               const sliceAngle = (value / total) * 2 * Math.PI;
+
+               // Dessiner la tranche
+               ctx.beginPath();
+               ctx.moveTo(centerX, centerY);
+               ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+               ctx.closePath();
+               ctx.fillStyle = colors[index % colors.length];
+               ctx.fill();
+
+               // Légende
+               const legendY = 20 + index * 25;
+               ctx.fillStyle = colors[index % colors.length];
+               ctx.fillRect(10, legendY, 15, 15);
+               ctx.fillStyle = '#fff';
+               ctx.font = '14px sans-serif';
+               ctx.textAlign = 'left';
+               ctx.fillText(`${labels[index]}: ${value}`, 30, legendY + 12);
+
+               currentAngle += sliceAngle;
+             });
+           }
+
+           // ============================
+           // GESTION DES ARTICLES (ADMIN)
+           // ============================
+
+           function renderArticlesTable() {
+             const tbody = document.getElementById('articles-table-body');
+             tbody.innerHTML = '';
+
+             articles.forEach(article => {
+               const row = document.createElement('tr');
+               row.innerHTML = `
+                 <td>${article.id}</td>
+                 <td>${article.icone} ${article.nom}</td>
+                 <td>${article.categorie}</td>
+                 <td>${article.prix.toFixed(2)} €</td>
+                 <td>${article.stock}</td>
+                 <td>
+                   <button class="btn-small" onclick="editArticle(${article.id})">✏️ Modifier</button>
+                   <button class="btn-small btn-danger" onclick="deleteArticle(${article.id})">🗑️ Supprimer</button>
+                 </td>
+               `;
+               tbody.appendChild(row);
+             });
+           }
+
+           function openArticleModal(articleId = null) {
+             const modal = document.getElementById('article-modal');
+             const form = document.getElementById('article-form');
+
+             form.reset();
+
+             if (articleId) {
+               const article = articles.find(a => a.id === articleId);
+               if (article) {
+                 document.getElementById('article-modal-title').textContent = 'Modifier l\'Article';
+                 document.getElementById('article-id').value = article.id;
+                 document.getElementById('article-nom').value = article.nom;
+                 document.getElementById('article-categorie').value = article.categorie;
+                 document.getElementById('article-prix').value = article.prix;
+                 document.getElementById('article-stock').value = article.stock;
+                 document.getElementById('article-description').value = article.description;
+                 document.getElementById('article-icone').value = article.icone;
+               }
+             } else {
+               document.getElementById('article-modal-title').textContent = 'Ajouter un Article';
+             }
+
+             modal.classList.add('show');
+           }
+
+           function closeArticleModal() {
+             document.getElementById('article-modal').classList.remove('show');
+           }
+
+           function saveArticle(event) {
+             event.preventDefault();
+
+             const id = document.getElementById('article-id').value;
+             const nom = document.getElementById('article-nom').value;
+             const categorie = document.getElementById('article-categorie').value;
+             const prix = parseFloat(document.getElementById('article-prix').value);
+             const stock = parseInt(document.getElementById('article-stock').value);
+             const description = document.getElementById('article-description').value;
+             const icone = document.getElementById('article-icone').value;
+
+             if (id) {
+               // Modifier
+               const article = articles.find(a => a.id === parseInt(id));
+               if (article) {
+                 article.nom = nom;
+                 article.categorie = categorie;
+                 article.prix = prix;
+                 article.stock = stock;
+                 article.description = description;
+                 article.icone = icone;
+               }
+             } else {
+               // Ajouter
+               const newArticle = new Article(nextArticleId++, nom, prix, categorie, description, icone, stock);
+               articles.push(newArticle);
+             }
+
+             closeArticleModal();
+             renderArticlesTable();
+             renderProducts();
+           }
+
+           function editArticle(id) {
+             openArticleModal(id);
+           }
+
+           function deleteArticle(id) {
+             const confirmation = createInlineConfirmation('Êtes-vous sûr de vouloir supprimer cet article ?');
+
+             confirmation.onConfirm = () => {
+               articles = articles.filter(a => a.id !== id);
+               renderArticlesTable();
+               renderProducts();
+             };
+           }
+
+           function createInlineConfirmation(message) {
+             const overlay = document.createElement('div');
+             overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: flex; align-items: center; justify-content: center;';
+
+             const box = document.createElement('div');
+             box.style.cssText = 'background: #1a1a1a; border: 2px solid #D4AF37; border-radius: 12px; padding: 32px; max-width: 400px;';
+
+             const text = document.createElement('p');
+             text.textContent = message;
+             text.style.cssText = 'color: #fff; margin-bottom: 24px; font-size: 16px;';
+
+             const btnContainer = document.createElement('div');
+             btnContainer.style.cssText = 'display: flex; gap: 12px; justify-content: flex-end;';
+
+             const btnCancel = document.createElement('button');
+             btnCancel.textContent = 'Annuler';
+             btnCancel.style.cssText = 'padding: 10px 20px; background: transparent; border: 2px solid #666; color: #ccc; border-radius: 6px; cursor: pointer; font-weight: 600;';
+             btnCancel.onclick = () => document.body.removeChild(overlay);
+
+             const btnConfirm = document.createElement('button');
+             btnConfirm.textContent = 'Confirmer';
+             btnConfirm.style.cssText = 'padding: 10px 20px; background: #D4AF37; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;';
+
+             btnContainer.appendChild(btnCancel);
+             btnContainer.appendChild(btnConfirm);
+             box.appendChild(text);
+             box.appendChild(btnContainer);
+             overlay.appendChild(box);
+             document.body.appendChild(overlay);
+
+             return {
+               onConfirm: (callback) => {
+                 btnConfirm.onclick = () => {
+                   callback();
+                   document.body.removeChild(overlay);
+                 };
+               }
+             };
+           }
+
+           // ============================
+           // GESTION DES COMMANDES (ADMIN)
+           // ============================
+
+           function renderCommandesTable() {
+             const tbody = document.getElementById('commandes-table-body');
+             tbody.innerHTML = '';
+
+             commandes.forEach(commande => {
+               const articlesText = commande.items.map(item =>
+                 `${item.article.nom} (x${item.quantite})`
+               ).join(', ');
+
+               const statusClass = commande.statut === 'Complétée' ? 'status-completed' :
+                                  commande.statut === 'Annulée' ? 'status-cancelled' :
+                                  'status-pending';
+
+               const row = document.createElement('tr');
+               row.innerHTML = `
+                 <td>#${commande.id.toString().padStart(4, '0')}</td>
+                 <td>${commande.date.toLocaleDateString('fr-FR')}</td>
+                 <td>${commande.client}</td>
+                 <td>${articlesText}</td>
+                 <td>${commande.total.toFixed(2)} €</td>
+                 <td><span class="status-badge ${statusClass}">${commande.statut}</span></td>
+                 <td>
+                   <button class="btn-small" onclick="changeOrderStatus(${commande.id})">🔄 Statut</button>
+                 </td>
+               `;
+               tbody.appendChild(row);
+             });
+           }
+
+           function changeOrderStatus(commandeId) {
+             const commande = commandes.find(c => c.id === commandeId);
+             if (!commande) return;
+
+             const statuts = ['En attente', 'Complétée', 'Annulée'];
+             const currentIndex = statuts.indexOf(commande.statut);
+             commande.statut = statuts[(currentIndex + 1) % statuts.length];
+
+             renderCommandesTable();
+             renderFournisseurCommandes();
+           }
+
+           // ============================
+           // ESPACE FOURNISSEUR
+           // ============================
+
+           function showFournisseurSection(section) {
+             document.querySelectorAll('.fournisseur-section').forEach(s => s.style.display = 'none');
+             document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+
+             if (section === 'articles') {
+               document.getElementById('fournisseur-articles').style.display = 'block';
+               renderFournisseurArticles();
+             } else if (section === 'commandes') {
+               document.getElementById('fournisseur-commandes').style.display = 'block';
+               renderFournisseurCommandes();
+             }
+
+             event.target.classList.add('active');
+           }
+
+           function renderFournisseurArticles() {
+             const tbody = document.getElementById('fournisseur-articles-body');
+             tbody.innerHTML = '';
+
+             articles.forEach(article => {
+               const row = document.createElement('tr');
+               row.innerHTML = `
+                 <td>${article.icone} ${article.nom}</td>
+                 <td>${article.categorie}</td>
+                 <td>${article.prix.toFixed(2)} €</td>
+                 <td>${article.stock}</td>
+                 <td>
+                   <button class="btn-small" onclick="openStockModal(${article.id})">📦 Mettre à jour</button>
+                 </td>
+               `;
+               tbody.appendChild(row);
+             });
+           }
+
+           function renderFournisseurCommandes() {
+             const tbody = document.getElementById('fournisseur-commandes-body');
+             tbody.innerHTML = '';
+
+             commandes.forEach(commande => {
+               const articlesText = commande.items.map(item => item.article.nom).join(', ');
+               const quantite = commande.items.reduce((sum, item) => sum + item.quantite, 0);
+
+               const statusClass = commande.statut === 'Complétée' ? 'status-completed' :
+                                  commande.statut === 'Annulée' ? 'status-cancelled' :
+                                  'status-pending';
+
+               const row = document.createElement('tr');
+               row.innerHTML = `
+                 <td>#${commande.id.toString().padStart(4, '0')}</td>
+                 <td>${commande.date.toLocaleDateString('fr-FR')}</td>
+                 <td>${articlesText}</td>
+                 <td>${quantite}</td>
+                 <td><span class="status-badge ${statusClass}">${commande.statut}</span></td>
+               `;
+               tbody.appendChild(row);
+             });
+           }
+
+           function openStockModal(articleId) {
+             const article = articles.find(a => a.id === articleId);
+             if (!article) return;
+
+             document.getElementById('stock-article-id').value = article.id;
+             document.getElementById('stock-article-nom').value = article.nom;
+             document.getElementById('stock-quantite').value = article.stock;
+
+             document.getElementById('stock-modal').classList.add('show');
+           }
+
+           function closeStockModal() {
+             document.getElementById('stock-modal').classList.remove('show');
+           }
+
+           function updateStock(event) {
+             event.preventDefault();
+
+             const articleId = parseInt(document.getElementById('stock-article-id').value);
+             const nouvelleQuantite = parseInt(document.getElementById('stock-quantite').value);
+
+             const article = articles.find(a => a.id === articleId);
+             if (article) {
+               article.stock = nouvelleQuantite;
+             }
+
+             closeStockModal();
+             renderFournisseurArticles();
+             renderArticlesTable();
+           }
+
+           // ============================
+           // ESPACE CLIENT
+           // ============================
+
+           function showClientSection(section) {
+             // Pour le moment, seulement le catalogue
+           }
+
+           function renderProducts() {
+             const grid = document.getElementById('products-grid');
+             grid.innerHTML = '';
+
+             articles.forEach(article => {
+               const card = document.createElement('div');
+               card.className = 'product-card';
+               card.innerHTML = `
+                 <div class="product-image">${article.icone}</div>
+                 <div class="product-content">
+                   <h3 class="product-name">${article.nom}</h3>
+                   <p class="product-category">${article.categorie}</p>
+                   <p class="product-description">${article.description}</p>
+                   <div class="product-footer">
+                     <span class="product-price">${article.prix.toFixed(2)} €</span>
+                     <button class="btn-primary" onclick="addToCart(${article.id})">Ajouter</button>
+                   </div>
+                 </div>
+               `;
+               grid.appendChild(card);
+             });
+           }
+
+           function addToCart(articleId) {
+             const article = articles.find(a => a.id === articleId);
+             if (article && article.stock > 0) {
+               panier.ajouterArticle(article);
+             }
+           }
+
+           function renderCart() {
+             const body = document.getElementById('cart-sidebar-body');
+             const footer = document.getElementById('cart-sidebar-footer');
+             const count = document.getElementById('cart-count');
+             const total = document.getElementById('cart-total');
+
+             count.textContent = panier.getNombreArticles();
+
+             if (panier.items.length === 0) {
+               body.innerHTML = '<div class="cart-empty">Votre panier est vide</div>';
+               footer.style.display = 'none';
+               return;
+             }
+
+             body.innerHTML = '';
+             panier.items.forEach(item => {
+               const cartItem = document.createElement('div');
+               cartItem.className = 'cart-item';
+               cartItem.innerHTML = `
+                 <div class="cart-item-header">
+                   <span class="cart-item-name">${item.article.icone} ${item.article.nom}</span>
+                   <button class="cart-item-remove" onclick="removeFromCart(${item.article.id})">🗑️</button>
+                 </div>
+                 <div class="cart-item-footer">
+                   <div class="cart-item-quantity">
+                     <button class="quantity-btn" onclick="changeCartQuantity(${item.article.id}, ${item.quantite - 1})">−</button>
+                     <span>${item.quantite}</span>
+                     <button class="quantity-btn" onclick="changeCartQuantity(${item.article.id}, ${item.quantite + 1})">+</button>
+                   </div>
+                   <span class="cart-item-price">${item.getSousTotal().toFixed(2)} €</span>
+                 </div>
+               `;
+               body.appendChild(cartItem);
+             });
+
+             footer.style.display = 'block';
+             total.textContent = panier.getTotal().toFixed(2) + ' €';
+           }
+
+           function removeFromCart(articleId) {
+             panier.retirerArticle(articleId);
+           }
+
+           function changeCartQuantity(articleId, nouvelleQuantite) {
+             panier.modifierQuantite(articleId, nouvelleQuantite);
+           }
+
+           function toggleCart() {
+             document.getElementById('cart-sidebar').classList.toggle('open');
+           }
+
+           function openDeliveryModal() {
+             if (panier.items.length === 0) {
+               alert('Votre panier est vide.');
+               return;
+             }
+             document.getElementById('delivery-modal').classList.add('show');
+           }
+
+           function closeDeliveryModal() {
+             document.getElementById('delivery-modal').classList.remove('show');
+           }
+
+           function submitDeliveryForm(event) {
+             event.preventDefault();
+             const deliveryName = document.getElementById('delivery-name').value.trim();
+             const deliveryStreet = document.getElementById('delivery-street').value.trim();
+             const deliveryCity = document.getElementById('delivery-city').value.trim();
+             const deliveryPostal = document.getElementById('delivery-postal').value.trim();
+             const deliveryPhone = document.getElementById('delivery-phone').value.trim();
+
+             if (!deliveryName || !deliveryStreet || !deliveryCity || !deliveryPostal || !deliveryPhone) {
+               alert('Merci de renseigner toutes les informations de livraison.');
+               return;
+             }
+
+             const deliveryInfo = {
+               name: deliveryName,
+               street: deliveryStreet,
+               city: deliveryCity,
+               postalCode: deliveryPostal,
+               phone: deliveryPhone
+             };
+
+             placeOrder(deliveryInfo);
+             closeDeliveryModal();
+           }
+
+           function placeOrder(deliveryInfo) {
+             if (panier.items.length === 0) return;
+
+             const customerName = deliveryInfo?.name || 'Client Web';
+
+             const commande = new Commande(
+               nextCommandeId++,
+               [...panier.items],
+               panier.getTotal(),
+               customerName,
+               new Date(),
+               deliveryInfo || null
+             );
+
+             commandes.push(commande);
+             panier.vider();
+             toggleCart();
+
+             showOrderConfirmation();
+           }
+
+           function showOrderConfirmation() {
+             const overlay = document.createElement('div');
+             overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: flex; align-items: center; justify-content: center;';
+
+             const box = document.createElement('div');
+             box.style.cssText = 'background: #000; border: 3px solid #D4AF37; border-radius: 12px; padding: 48px; text-align: center; max-width: 500px;';
+
+             box.innerHTML = `
+               <div style="font-size: 72px; margin-bottom: 24px;">✅</div>
+               <h3 style="color: #D4AF37; font-size: 28px; margin-bottom: 16px; font-weight: 700;">Commande Confirmée !</h3>
+               <p style="color: #ccc; font-size: 16px; margin-bottom: 32px; line-height: 1.6;">
+                 Merci pour votre commande. Vous recevrez une confirmation par email sous peu.
+               </p>
+               <button onclick="this.parentElement.parentElement.remove()" style="background: #D4AF37; color: #000; border: none; padding: 14px 32px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px;">
+                 Continuer mes achats
+               </button>
+             `;
+
+             overlay.appendChild(box);
+             document.body.appendChild(overlay);
+           }
+
+           // ============================
+           // INITIALISATION AU CHARGEMENT
+           // ============================
+
+           window.addEventListener('DOMContentLoaded', () => {
+             initData();
+           });
+       </script>
+   </div>
+  </div>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a49789fb3408aa0',t:'MTc2NDE2MTAwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
